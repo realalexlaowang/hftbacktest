@@ -489,8 +489,12 @@ class HighFidelityBacktestEngine:
         latency_ms = self.latency_model.calculate_latency()
         order.latency_ms = latency_ms
         
-        # 将订单加入延迟队列
-        execution_time = self.current_time + timedelta(milliseconds=latency_ms)
+        # 将订单加入延迟队列 - 修复时间戳操作
+        if hasattr(self.current_time, 'add_milliseconds'):
+            execution_time = self.current_time.add_milliseconds(latency_ms)
+        else:
+            execution_time = self.current_time + timedelta(milliseconds=latency_ms)
+        
         self.event_queue.append((execution_time, 'order_execution', order))
         
         self.orders[order.order_id] = order
