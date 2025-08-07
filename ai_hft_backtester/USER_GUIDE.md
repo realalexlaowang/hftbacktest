@@ -77,6 +77,13 @@ strategy = SimpleMarketMaker(
     order_size=0.1   # 每次下单0.1 BTC
 )
 
+# 初始化策略参数
+strategy.initialize(
+    initial_capital=10000,
+    max_position=1.0,
+    inventory_target=0.0
+)
+
 # 运行回测
 results = backtester.run(
     strategy=strategy,

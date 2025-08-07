@@ -262,6 +262,41 @@ class MarketMakingPolicy(nn.Module):
         return action_idx, action_params
 
 
+def save_model(model: nn.Module, filepath: str, metadata: Dict = None):
+    """
+    Save model with metadata
+    
+    Args:
+        model: PyTorch model to save
+        filepath: Path to save file
+        metadata: Optional metadata to save with model
+    """
+    save_dict = {
+        'model_state_dict': model.state_dict(),
+        'model_class': model.__class__.__name__,
+        'metadata': metadata or {}
+    }
+    torch.save(save_dict, filepath)
+
+
+def load_model(filepath: str, model_class, **kwargs) -> Tuple[nn.Module, Dict]:
+    """
+    Load model from file
+    
+    Args:
+        filepath: Path to saved model
+        model_class: Model class to instantiate
+        **kwargs: Arguments for model initialization
+    
+    Returns:
+        Tuple of (model, metadata)
+    """
+    checkpoint = torch.load(filepath, map_location='cpu')
+    model = model_class(**kwargs)
+    model.load_state_dict(checkpoint['model_state_dict'])
+    return model, checkpoint.get('metadata', {})
+
+
 class EnsemblePredictor:
     """Ensemble of multiple models for robust predictions"""
     

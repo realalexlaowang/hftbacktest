@@ -228,6 +228,18 @@ class Backtester:
             'order_id': order_id
         })
     
+    def _cancel_order(self, action: Dict, strategy: AIMarketMaker):
+        """Process order cancellation"""
+        order_id = action.get('order_id')
+        if order_id and order_id in self.order_queue:
+            order = self.order_queue[order_id]
+            order['status'] = 'cancelled'
+            del self.order_queue[order_id]
+            
+            # Remove from strategy's active orders if tracking
+            if hasattr(strategy, 'active_orders') and order_id in strategy.active_orders:
+                del strategy.active_orders[order_id]
+    
     def _check_order_fills(self, trade_data: Dict, strategy: AIMarketMaker, timestamp: int):
         """Check if any orders were filled"""
         trade_price = trade_data['price']
